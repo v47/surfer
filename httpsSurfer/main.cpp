@@ -10,6 +10,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
@@ -72,7 +73,7 @@ public:
     {
       std::cout << "Enter message: ";
       std::ostream request_stream(&request);
-      request_stream << "GET /wiki/Anheuser-Busch_InBev HTTP/1.1\r\n";
+      request_stream << "GET / HTTP/1.1\r\n";
       request_stream << "Host: " << "en.wikipedia.org" << "\r\n";
       request_stream << "Accept: */*\r\n";
       request_stream << "Connection: close\r\n\r\n";
@@ -80,7 +81,17 @@ public:
       boost::asio::write(socket_,request);
       boost::system::error_code ec;
       boost::asio::read(socket_,reply_, boost::asio::transfer_all(),ec);
-      std::cout<<(&reply_);
+      std::cout<<"error=>>>"<<ec.message()<<std::endl;
+      std::stringstream ss;
+      ss<<boost::asio::buffer_cast<const char*>( reply_.data());
+      std::cout<<ss.str();
+      std::ofstream myfile;
+      myfile.open ("example.html");
+       if (myfile.is_open())
+       {
+         myfile << ss.str();
+       }
+       else std::cout << "Unable to open file";
     }
     else
     {
@@ -106,8 +117,8 @@ public:
     if (!error)
     {
       std::cout << "Reply: ";
-      std::cout<<(&reply_);
-      std::cout << "\n";
+      std::cout<<&reply_;
+
     }
     else
     {
